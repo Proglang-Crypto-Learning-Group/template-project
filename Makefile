@@ -20,28 +20,26 @@ all:
 	@echo "* make clean              - delete any __pycache__ or .mypy_cache + docs dir + docker image"
 	@echo "  - make image-clean      - untag & remove relevent docker image"
 	@echo "  - make container-clean  - remove relevent docker container"
-	@echo "* make cow                - ???"
+	@echo "* make goat               - ???"
 
 install: install-core install-dev
 
 install-core:
 	@echo "[*] Installing core dependencies..."
 	@pip install -r requirements.txt
-`
+
 install-dev:
 	@echo "[*] Installing dev dependencies..."
 	@pip install -r requirements-dev.txt
 
-clean: container-clean image-clean
+clean: container-clean image-clean docs-clean
 	@echo "[*] Cleaning any __pycache__ dir..."
 	@find . -name '__pycache__' -type d -prune -exec rm -rf {} \;
 	@echo "[*] Cleaning any .mypy_cache dir..."
 	@find . -name '.mypy_cache' -type d -prune -exec rm -rf {} \;
-	@echo "[*] Cleaning stale docs..."
-	@rm -rf docs
 
 isort:
-	@cd src; \
+	@PYTHONPATH=${PYTHONPATH} \
 	isort src
 
 flake8:
@@ -50,12 +48,12 @@ flake8:
 lint: mypy pylint
 
 pylint:
-	@cd src; \
-	pylint block coin transaction wallet
+	@PYTHONPATH=${PYTHONPATH} \
+	pylint src
 
 mypy:
 	@cd src; \
-	mypy -p block -p coin -p transaction -p wallet
+	mypy -p block -p wallet -p coin -p transaction
 
 test: unittest doctest
 
@@ -67,12 +65,12 @@ docs:
 	cp ../assets/* ../docs/src/assets;
 
 doctest:
-	@cd src; \
+	@PYTHONPATH=${PYTHONPATH} \
 	python -m doctest sbittest.py
 
 unittest:
-	@cd src; \
-	python -m unittest sbittest.py
+	@PYTHONPATH=${PYTHONPATH} \
+	python -m unittest sbittest
 
 docker: image-build container-run
 
@@ -91,5 +89,5 @@ image-clean:
 container-clean:
 	@echo "[*] No need, docker autoremoves container on exit with --rm"
 
-cow:
-	@echo IF9fX19fX18gCjwgaGFsbG8gPgogLS0tLS0tLSAKICAgICAgICBcICAgXl9fXgogICAgICAgICBcICAob28pXF9fX19fX18KICAgICAgICAgICAgKF9fKVwgICAgICAgKVwvXAogICAgICAgICAgICAgICAgfHwtLS0tdyB8CiAgICAgICAgICAgICAgICB8fCAgICAgfHwK | base64 -d
+goat:
+	@echo IF9fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fX19fXyAKPCBaaWVnZW4gc2luZCBrZWluZSBha3plcHRhYmxlIFfDpGhydW5nID4KIC0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLSAKICAgICAgICBcCiAgICAgICAgIFwKICAgICAgICAgIClfXygKICAgICAgICAgJ3xvb3wnX19fX19fX18vCiAgICAgICAgICB8X198ICAgICAgICAgfAogICAgICAgICAgICAgfHwiIiIiIiIifHwKICAgICAgICAgICAgIHx8ICAgICAgIHx8Cgo= | base64 -d
