@@ -10,6 +10,7 @@ all:
 	@echo "  - make unittest         - test a unit of source code. inspired by JUnit."
 	@echo "  - make docttest         - run examples embedded in the documentation and verifying that they produce the expected results."
 	@echo "* make docs               - run pdoc3 to create project documentation."
+	@echo "  - make uml              - create UML diagrams for classes and modules in 'src' using Graphviz"
 	@echo "* make mypy               - run optional static type checker on project"
 	@echo "* make pylint             - run static code analysis on project"
 	@echo "* make flake8             - run the flake8 code checker."
@@ -59,10 +60,20 @@ test: unittest doctest
 
 docs:
 	@echo "[*] Generating documentation using pdoc3..."
+	@PYTHONPATH=${PYTHONPATH} \
+	pdoc3 --html src -o docs --force; \
+	mkdir -p docs/src/assets; \
+	cp assets/* docs/src/assets;
+
+uml:
+	@echo "[*] Drawing UML/class diagram (classes.svg, packages.svg)..."
 	@cd src; \
-	pdoc3 --html . -o ../docs --force; \
-	mkdir -p ../docs/src/assets; \
-	cp ../assets/* ../docs/src/assets;
+	pyreverse -A -o svg --filter-mode=ALL -d ../assets .
+
+docs-clean:
+	@echo "[*] Cleaning stale docs..."
+	@rm -rf docs
+	@rm assets/classes.svg assets/packages.svg
 
 doctest:
 	@PYTHONPATH=${PYTHONPATH} \
